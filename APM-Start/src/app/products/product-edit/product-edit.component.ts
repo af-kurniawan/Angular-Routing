@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { MessageService } from '../../messages/message.service';
 
-import { Product } from '../product';
+import { Product, ProductResolved } from '../product';
 import { ProductService } from '../product.service';
+
 
 @Component({
   templateUrl: './product-edit.component.html',
@@ -16,13 +18,17 @@ export class ProductEditComponent {
   product: Product;
 
   constructor(private productService: ProductService,
-              private messageService: MessageService) { }
+              private messageService: MessageService,
+              private route: ActivatedRoute,
+              private router: Router) { }
 
-  getProduct(id: number): void {
-    this.productService.getProduct(id).subscribe({
-      next: product => this.onProductRetrieved(product),
-      error: err => this.errorMessage = err
-    });
+
+  ngOnInit(): void {
+    this.route.data.subscribe(data => {
+      const resolvedData: ProductResolved = data['resolvedData'];
+      this.errorMessage = resolvedData.error;
+      this.onProductRetrieved(resolvedData.product);
+    })
   }
 
   onProductRetrieved(product: Product): void {
@@ -51,6 +57,7 @@ export class ProductEditComponent {
         });
       }
     }
+    // this.router.navigate(['/products']);
   }
 
   saveProduct(): void {
@@ -77,5 +84,6 @@ export class ProductEditComponent {
     }
 
     // Navigate back to the product list
+    this.router.navigate(['/products']);
   }
 }
